@@ -8,6 +8,7 @@ import (
 	"go-otp-auth-service/models"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -63,6 +64,8 @@ func Logout(c *gin.Context) {
 }
 
 func RequestOTP(c *gin.Context) {
+	rateLimit, err := strconv.Atoi(os.Getenv("RATE_LIMIT"))
+	periodTime, err := strconv.Atoi(os.Getenv("PERIOD_TIME"))
 	var body struct {
 		Phone string
 	}
@@ -70,6 +73,15 @@ func RequestOTP(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to read body",
 		})
+		return
+	}
+	ok, msg, err := CheckOTPRequest(body.Phone, rateLimit, time.Duration(periodTime)*time.Second)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return
+	}
+	if !ok {
+		c.JSON(http.StatusTooManyRequests, gin.H{"error": msg})
 		return
 	}
 	otp, err := GenerateOTP(body.Phone)

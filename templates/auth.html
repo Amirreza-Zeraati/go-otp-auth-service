@@ -158,11 +158,9 @@
     <div id="step-phone">
         <label for="phone">Phone</label>
         <div class="row">
-            <input id="phone" name="Phone" type="tel" placeholder="e.g. 09123456789" autocomplete="tel"
-                   pattern="^[0-9+\-\s()]{6,20}$" required/>
+            <input id="phone" name="Phone" type="tel" autocomplete="tel" required/>
             <button id="btn-send" type="button">Send OTP</button>
         </div>
-        <small class="hint">For dev: server prints OTP to console (no SMS).</small>
         <div id="msg-phone" class="msg"></div>
     </div>
 
@@ -243,7 +241,7 @@
         try {
             const {ok, data} = await requestOTP(phone);
             if (ok) {
-                showMsg(msgPhone, 'OTP sent. Check server logs (dev mode).', true);
+                showMsg(msgPhone, 'OTP has been sent. Check server logs.', true);
                 stepOtp.classList.remove('hidden');
                 loginPhoneHidden.value = phone;
                 setTimeout(() => document.getElementById('otp')?.focus(), 50);
@@ -269,7 +267,7 @@
         try {
             const {ok, data} = await requestOTP(phone);
             if (ok) {
-                showMsg(msgPhone, 'OTP resent. Check server logs.', true);
+                showMsg(msgPhone, 'OTP has been resent. Check server logs.', true);
             } else {
                 showMsg(msgPhone, (data && data.error) ? data.error : 'Failed to resend OTP.');
             }
