@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>OTP Login</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #111827;
+            --muted: #94a3b8;
+            --text: #e5e7eb;
+            --accent: #22c55e;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+            background: linear-gradient(180deg, #0b1220, #0f172a);
+            color: var(--text);
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(17, 24, 39, .8);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(148, 163, 184, .15);
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 22px;
+        }
+
+        p.sub {
+            margin: 0 0 18px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: var(--muted);
+            margin: 12px 0 6px;
+        }
+
+        input[type="tel"], input[type="text"] {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, .25);
+            background: #0b1220;
+            color: var(--text);
+            outline: none;
+        }
+
+        input:focus {
+            border-color: rgba(34, 197, 94, .6);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, .12);
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+        }
+
+        button {
+            appearance: none;
+            border: 0;
+            padding: 12px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #06110a;
+            transition: transform .04s ease;
+        }
+
+        button:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .link {
+            background: none;
+            color: #60a5fa;
+            padding: 0;
+            font-weight: 500;
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .msg {
+            margin-top: 12px;
+            font-size: 13px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .msg.ok {
+            background: rgba(34, 197, 94, .12);
+            border: 1px solid rgba(34, 197, 94, .35);
+            color: #b8f3cd;
+        }
+
+        .msg.err {
+            background: rgba(239, 68, 68, .12);
+            border: 1px solid rgba(239, 68, 68, .35);
+            color: #fecaca;
+        }
+
+        .sep {
+            height: 1px;
+            background: rgba(148, 163, 184, .15);
+            margin: 18px 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        small.hint {
+            display: block;
+            color: #9ca3af;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>Sign in with OTP</h1>
+    <p class="sub">Enter your phone number to receive a one-time code.</p>
+
+    <div id="step-phone">
+        <label for="phone">Phone</label>
+        <div class="row">
+            <input id="phone" name="Phone" type="tel" placeholder="e.g. 09123456789" autocomplete="tel"
+                   pattern="^[0-9+\-\s()]{6,20}$" required/>
+            <button id="btn-send" type="button">Send OTP</button>
+        </div>
+        <small class="hint">For dev: server prints OTP to console (no SMS).</small>
+        <div id="msg-phone" class="msg"></div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div id="step-otp" class="hidden">
+        <form id="login-form" method="POST" action="/login">
+            <input type="hidden" name="Phone" id="login-phone"/>
+            <label for="otp">OTP</label>
+            <div class="row">
+                <input id="otp" name="OTP" type="text" inputmode="numeric" autocomplete="one-time-code"
+                       pattern="^[0-9]{4,8}$" placeholder="6-digit code" required/>
+                <button id="btn-login" type="submit">Login</button>
+            </div>
+            <small class="hint">After login, you’ll be redirected to /dashboard.</small>
+            <div id="msg-otp" class="msg"></div>
+        </form>
+        <p class="muted">
+            Didn’t get it?
+            <button id="btn-resend" class="link" type="button">Resend OTP</button>
+        </p>
+    </div>
+</div>
+
+<script>
+    const $ = (sel) => document.querySelector(sel);
+    const phoneInput = $('#phone');
+    const sendBtn = $('#btn-send');
+    const msgPhone = $('#msg-phone');
+
+    const stepOtp = $('#step-otp');
+    const loginPhoneHidden = $('#login-phone');
+    const loginForm = $('#login-form');
+    const msgOtp = $('#msg-otp');
+    const resendBtn = $('#btn-resend');
+
+    function showMsg(el, text, ok = false) {
+        el.textContent = text;
+        el.classList.remove('ok', 'err');
+        el.classList.add(ok ? 'ok' : 'err');
+        el.style.display = 'block';
+    }
+
+    function clearMsg(el) {
+        el.style.display = 'none';
+        el.textContent = '';
+    }
+
+    async function requestOTP(phone) {
+        const params = new URLSearchParams();
+        params.append('Phone', phone);
+        const res = await fetch('/request-otp', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: params.toString(),
+            credentials: 'same-origin'
+        });
+        const ok = res.ok;
+        let data = null;
+        try {
+            data = await res.json();
+        } catch {
+        }
+        return {ok, data};
+    }
+
+    async function handleSend() {
+        clearMsg(msgPhone);
+        clearMsg(msgOtp);
+
+        const phone = phoneInput.value.trim();
+        if (!phone) {
+            showMsg(msgPhone, 'Please enter a phone number.');
+            return;
+        }
+
+        sendBtn.disabled = true;
+        try {
+            const {ok, data} = await requestOTP(phone);
+            if (ok) {
+                showMsg(msgPhone, 'OTP sent. Check server logs (dev mode).', true);
+                stepOtp.classList.remove('hidden');
+                loginPhoneHidden.value = phone;
+                setTimeout(() => document.getElementById('otp')?.focus(), 50);
+            } else {
+                showMsg(msgPhone, (data && data.error) ? data.error : 'Failed to request OTP.');
+            }
+        } catch (e) {
+            showMsg(msgPhone, 'Network error while requesting OTP.');
+        } finally {
+            sendBtn.disabled = false;
+        }
+    }
+
+    async function handleResend() {
+        clearMsg(msgPhone);
+        const phone = loginPhoneHidden.value || phoneInput.value.trim();
+        if (!phone) {
+            showMsg(msgPhone, 'Enter a phone number first.');
+            return;
+        }
+        sendBtn.disabled = true;
+        resendBtn.disabled = true;
+        try {
+            const {ok, data} = await requestOTP(phone);
+            if (ok) {
+                showMsg(msgPhone, 'OTP resent. Check server logs.', true);
+            } else {
+                showMsg(msgPhone, (data && data.error) ? data.error : 'Failed to resend OTP.');
+            }
+        } catch (e) {
+            showMsg(msgPhone, 'Network error while resending OTP.');
+        } finally {
+            sendBtn.disabled = false;
+            setTimeout(() => {
+                resendBtn.disabled = false;
+            }, 1500);
+        }
+    }
+    sendBtn.addEventListener('click', handleSend);
+    resendBtn.addEventListener('click', handleResend);
+    loginForm.addEventListener('submit', () => {
+        clearMsg(msgOtp);
+        if (!loginPhoneHidden.value) loginPhoneHidden.value = phoneInput.value.trim();
+    });
+</script>
+</body>
+</html>

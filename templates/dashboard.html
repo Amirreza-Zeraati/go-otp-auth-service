@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #090c10;
+            height: 100vh;
+            color: #b1b8c0;
+        }
+        .add-monitor {
+            background: #5cdd8b;
+            color: black;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            width: 200px;
+            height: 35px;
+        }
+    </style>
+</head>
+<body>
+<h1>Dashboard</h1>
+<h2>your info :</h2>
+<h5>{{ .user.Phone }}</h5>
+
+<br>
+<a href="/logout">Logout</a>
+
+</body>
+</html>
