@@ -30,7 +30,7 @@ go mod tidy
 bash
 Create a .env file in the root:
 ```bash
-DB_HOST=postgres
+DB_HOST=postgres  //use localhost if you wanna run it without docker
 DB_USER=postgres
 DB_PASSWORD=postgres
 DB_NAME=dekamond
