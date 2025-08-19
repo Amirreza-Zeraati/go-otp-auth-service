@@ -1,42 +1,114 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>User List</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            margin: 0;
+            color: #94a3b8;
+        }
+        .card {
+            width: 600px;
+            background: rgba(17, 24, 39, .8);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(148, 163, 184, .15);
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+        }
+        h2 {
+            margin-bottom: 1rem;
+            color: white;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 0.6rem;
+        }
+        table th {
+            background: #111827;
+            color: white;
+        }
+        .pagination {
+            margin-top: 1rem;
+        }
+        .pagination a {
+            margin: 0 5px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: black;
+            background: #22c55e;
+        }
+        .search-box {
+            margin-bottom: 1rem;
+        }
+        input[type="text"] {
+            padding: 0.5rem;
+            width: 60%;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            background: #22c55e;
+            color: black;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-<h1>Users</h1>
+<div class="card">
+    <h2>User List</h2>
 
-<form method="get" action="/users">
-    <input type="text" name="search" value="{{.Search}}" placeholder="Search by phone">
-    <button type="submit">Search</button>
-</form>
+    <form class="search-box" method="GET" action="/users">
+        <input type="text" name="search" placeholder="Search by phone..." value="{{.Search}}">
+        <button type="submit">Search</button>
+    </form>
 
-<table border="1" cellpadding="6">
-    <tr>
-        <th>ID</th>
-        <th>Phone</th>
-        <th>Registered At</th>
-        <th>Action</th>
-    </tr>
-    {{range .Users}}
-    <tr>
-        <td>{{.ID}}</td>
-        <td>{{.Phone}}</td>
-        <td>{{.CreatedAt}}</td>
-        <td><a href="/users/{{.ID}}">View</a></td>
-    </tr>
-    {{end}}
-</table>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Phone</th>
+            <th>Registered</th>
+            <th>Action</th>
+        </tr>
+        {{range .Users}}
+        <tr>
+            <td>{{.ID}}</td>
+            <td>{{.Phone}}</td>
+            <td>{{.CreatedAt}}</td>
+            <td><a href="/users/{{.ID}}" style="text-decoration: none">View</a></td>
+        </tr>
+        {{end}}
+    </table>
 
-<div>
-    {{if .HasPrev}}
-    <a href="/users?page={{.PrevPage}}&search={{.Search}}">Prev</a>
-    {{end}}
-    Page {{.Page}} of {{.TotalPages}}
-    {{if .HasNext}}
-    <a href="/users?page={{.NextPage}}&search={{.Search}}">Next</a>
-    {{end}}
+    <div class="pagination">
+        {{if .HasPrev}}
+        <a href="/users?page={{.PrevPage}}&search={{.Search}}">Prev</a>
+        {{end}}
+        Page {{.Page}} of {{.TotalPages}}
+        {{if .HasNext}}
+        <a href="/users?page={{.NextPage}}&search={{.Search}}">Next</a>
+        {{end}}
+    </div>
+    <br>
+    <a href="/dashboard" class="btn" style="margin-bottom: 16px; display: inline-block; text-decoration: none; color: white">← Back to Dashboard</a>
 </div>
+
 
 </body>
 </html>

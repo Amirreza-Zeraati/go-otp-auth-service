@@ -12,11 +12,36 @@ import (
 	"time"
 )
 
+type LoginRequest struct {
+	Phone string `json:"phone" example:"09120000000"`
+	OTP   string `json:"otp" example:"123456"`
+}
+
+type LoginResponse struct {
+	Token string `json:"token"`
+}
+
+type RequestOTPRequest struct {
+	Phone string `json:"phone" example:"09120000000"`
+}
+
+type LogoutResponse struct {
+	Message string `json:"message"`
+}
+
+// Login godoc
+// @Summary Login with phone and OTP
+// @Description Verify OTP and login the user
+// @Tags Auth
+// @Accept  json
+// @Produce  json
+// @Param body body LoginRequest true "Login info"
+// @Success 200 {object} LoginResponse
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /login [post]
 func Login(c *gin.Context) {
-	var body struct {
-		Phone string
-		OTP   string
-	}
+	var body LoginRequest
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to read body",
@@ -24,7 +49,9 @@ func Login(c *gin.Context) {
 		return
 	}
 	if !VerifyOTP(body.Phone, body.OTP) {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired OTP"})
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "Invalid or expired OTP",
+		})
 		return
 	}
 	var user models.User
@@ -54,21 +81,41 @@ func Login(c *gin.Context) {
 	}
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("token", tokenString, 3600, "", "", false, true)
-	c.Redirect(http.StatusFound, "/dashboard")
+	c.JSON(http.StatusOK, LoginResponse{Token: tokenString})
+	//c.Redirect(http.StatusFound, "/dashboard")
 }
 
+// Logout godoc
+// @Summary Logout user
+// @Description Clear token cookie and logout
+// @Tags Auth
+// @Produce  json
+// @Success 200 {object} LogoutResponse
+// @Router /logout [get]
 func Logout(c *gin.Context) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("token", "", -1, "", "", false, true)
-	c.Redirect(http.StatusFound, "/")
+	c.JSON(http.StatusOK, LogoutResponse{Message: "Logged out successfully"})
+	//c.Redirect(http.StatusFound, "/")
 }
 
+// RequestOTP godoc
+// @Summary Request OTP
+// @Description Generate and send OTP for login
+// @Tags Auth
+// @Accept  json
+// @Produce  json
+// @Param body body RequestOTPRequest true "Phone number"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 429 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /request-otp [post]
 func RequestOTP(c *gin.Context) {
-	rateLimit, err := strconv.Atoi(os.Getenv("RATE_LIMIT"))
-	periodTime, err := strconv.Atoi(os.Getenv("PERIOD_TIME"))
-	var body struct {
-		Phone string
-	}
+	rateLimit, _ := strconv.Atoi(os.Getenv("RATE_LIMIT"))
+	periodTime, _ := strconv.Atoi(os.Getenv("PERIOD_TIME"))
+
+	var body RequestOTPRequest
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to read body",
@@ -77,17 +124,26 @@ func RequestOTP(c *gin.Context) {
 	}
 	ok, msg, err := CheckOTPRequest(body.Phone, rateLimit, time.Duration(periodTime)*time.Second)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error - (first run redis)"})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "internal server error - (first run redis)",
+		})
 		return
 	}
 	if !ok {
-		c.JSON(http.StatusTooManyRequests, gin.H{"error": msg})
+		c.JSON(http.StatusTooManyRequests, gin.H{
+			"error": msg,
+		})
 		return
 	}
 	otp, err := GenerateOTP(body.Phone)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 	fmt.Println("otp : ", otp)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "OTP sent successfully",
+	})
 }

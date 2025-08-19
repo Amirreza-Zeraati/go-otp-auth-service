@@ -19,7 +19,10 @@ func RequireAuth(c *gin.Context) {
 	secret := []byte(os.Getenv("SECRET"))
 	tokenString, err := c.Cookie("token")
 	if err != nil {
-		c.Redirect(http.StatusFound, "/")
+		//c.Redirect(http.StatusFound, "/")
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "Unauthorized",
+		})
 		c.Abort()
 		return
 	}
@@ -30,14 +33,20 @@ func RequireAuth(c *gin.Context) {
 		return secret, nil
 	})
 	if err != nil || token == nil {
-		c.Redirect(http.StatusFound, "/")
+		//c.Redirect(http.StatusFound, "/")
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "Unauthorized",
+		})
 		c.Abort()
 		return
 	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		fmt.Println(claims["exp"], claims["sub"])
 		if float64(time.Now().Unix()) > claims["exp"].(float64) {
-			c.Redirect(http.StatusFound, "/")
+			//c.Redirect(http.StatusFound, "/")
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "Unauthorized",
+			})
 			c.Abort()
 			return
 		}
@@ -45,14 +54,20 @@ func RequireAuth(c *gin.Context) {
 		initializers.DB.First(&user, claims["sub"])
 
 		if user.ID == 0 {
-			c.Redirect(http.StatusFound, "/")
+			//c.Redirect(http.StatusFound, "/")
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "Unauthorized",
+			})
 			c.Abort()
 			return
 		}
 		c.Set("user", user)
 		c.Next()
 	} else {
-		c.Redirect(http.StatusFound, "/")
+		//c.Redirect(http.StatusFound, "/")
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "Unauthorized",
+		})
 		c.Abort()
 	}
 }

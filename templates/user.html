@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Details</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            margin: 0;
+            color: #94a3b8;
+        }
+        .card {
+            max-width: 400px;
+            background: rgba(17, 24, 39, .8);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(148, 163, 184, .15);
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+        }
+        h2 {
+            margin-bottom: 1rem;
+            color: white;
+        }
+        .info {
+            text-align: left;
+            margin: 1rem 0;
+        }
+        .info p {
+            margin: 0.5rem 0;
+        }
+        a {
+            display: inline-block;
+            margin-top: 1rem;
+            text-decoration: none;
+            background: #22c55e;
+            color: black;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>User Details</h2>
+    <div class="info">
+        <p><strong>ID:</strong> {{.User.ID}}</p>
+        <p><strong>Phone:</strong> {{.User.Phone}}</p>
+        <p><strong>Registered:</strong> {{.User.CreatedAt}}</p>
+    </div>
+    <a href="/users">← Back to List</a>
+</div>
+</body>
+</html>

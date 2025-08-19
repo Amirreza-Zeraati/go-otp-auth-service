@@ -1,0 +1,223 @@
+definitions:
+  controllers.LoginRequest:
+    properties:
+      otp:
+        example: "123456"
+        type: string
+      phone:
+        example: "09120000000"
+        type: string
+    type: object
+  controllers.LoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  controllers.LogoutResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  controllers.RequestOTPRequest:
+    properties:
+      phone:
+        example: "09120000000"
+        type: string
+    type: object
+  controllers.UserResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      phone:
+        type: string
+    type: object
+  controllers.UsersListResponse:
+    properties:
+      has_next:
+        type: boolean
+      has_prev:
+        type: boolean
+      next_page:
+        type: integer
+      page:
+        type: integer
+      prev_page:
+        type: integer
+      search:
+        type: string
+      total_pages:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/controllers.UserResponse'
+        type: array
+    type: object
+  dashboardController.UserResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      phone:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /dashboard:
+    get:
+      description: Returns user info for the dashboard
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dashboardController.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Show user dashboard
+      tags:
+      - Dashboard
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Verify OTP and login the user
+      parameters:
+      - description: Login info
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login with phone and OTP
+      tags:
+      - Auth
+  /logout:
+    get:
+      description: Clear token cookie and logout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.LogoutResponse'
+      summary: Logout user
+      tags:
+      - Auth
+  /request-otp:
+    post:
+      consumes:
+      - application/json
+      description: Generate and send OTP for login
+      parameters:
+      - description: Phone number
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.RequestOTPRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "429":
+          description: Too Many Requests
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Request OTP
+      tags:
+      - Auth
+  /users:
+    get:
+      description: Returns paginated list of users (with optional search)
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Search by phone
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.UsersListResponse'
+      summary: List users
+      tags:
+      - users
+  /users/{id}:
+    get:
+      description: Returns a single user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.UserResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - users
+swagger: "2.0"

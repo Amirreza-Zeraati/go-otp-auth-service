@@ -5,28 +5,86 @@
     <title>Dashboard</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background: #090c10;
-            height: 100vh;
-            color: #b1b8c0;
+            margin: 0;
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+            background: linear-gradient(180deg, #0b1220, #0f172a);
+            color: #e5e7eb;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
         }
 
-        .add-monitor {
-            background: #5cdd8b;
-            color: black;
+        .card {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(17, 24, 39, .8);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(148, 163, 184, .15);
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: 24px;
+        }
+
+        h2 {
+            font-size: 18px;
+            margin-bottom: 6px;
+            color: #94a3b8;
+        }
+
+        h5 {
+            margin: 6px 0 18px;
             font-size: 16px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            width: 200px;
-            height: 35px;
+            color: #22c55e;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 18px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #06110a;
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform .04s ease;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .logout {
+            display: inline-block;
+            margin-top: 16px;
+            font-size: 14px;
+            color: #ef4444;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .logout:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-<h1>Dashboard</h1>
-<h2>your info :</h2>
-<h5>{{ .user.Phone }}</h5>
-<a href="/logout">Logout</a>
+<div class="card">
+    <h1>Dashboard</h1>
+    <h2>Your Info</h2>
+    <h5>{{ .user.Phone }}</h5>
+    <h5>{{ .user.CreatedAt }}</h5>
+    <a href="/users" class="btn">See All Users</a>
+    <br>
+    <a href="/logout" class="logout">Logout</a>
+</div>
 </body>
 </html>
