@@ -30,10 +30,10 @@ go mod tidy
 bash
 Create a .env file in the root:
 ```bash
-DB_HOST=localhost
+DB_HOST=postgres
 DB_USER=postgres
 DB_PASSWORD=postgres
-DB_NAME=go_otp
+DB_NAME=dekamond
 DB_PORT=5432
 
 REDIS_HOST=localhost
