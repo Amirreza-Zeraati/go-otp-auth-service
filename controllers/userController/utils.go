@@ -1,4 +1,4 @@
-package userController
+package controllers
 
 import (
 	"crypto/rand"

@@ -1,93 +1,58 @@
-package userController
+package controllers
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 	"go-otp-auth-service/initializers"
 	"go-otp-auth-service/models"
 	"net/http"
-	"os"
 	"strconv"
-	"time"
 )
 
-func Login(c *gin.Context) {
-	var body struct {
-		Phone string
-		OTP   string
-	}
-	if c.Bind(&body) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
-		})
-		return
-	}
-	if !VerifyOTP(body.Phone, body.OTP) {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired OTP"})
-		return
-	}
+func GetUser(c *gin.Context) {
+	id := c.Param("id")
 	var user models.User
-	initializers.DB.First(&user, "phone = ?", body.Phone)
-	if user.ID == 0 {
-		newUser := models.User{Phone: body.Phone}
-		result := initializers.DB.Create(&newUser)
-		if result.Error != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Failed to create user",
-			})
-			return
-		}
-		user = newUser
+	if err := initializers.DB.First(&user, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": user.ID,
-		"exp": time.Now().Add(time.Hour).Unix(),
+	c.HTML(http.StatusOK, "user_detail.html", gin.H{
+		"User": user,
 	})
-	secret := os.Getenv("SECRET")
-	tokenString, err := token.SignedString([]byte(secret))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to create token",
-		})
-		return
-	}
-	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("token", tokenString, 3600, "", "", false, true)
-	c.Redirect(http.StatusFound, "/dashboard")
 }
 
-func Logout(c *gin.Context) {
-	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("token", "", -1, "", "", false, true)
-	c.Redirect(http.StatusFound, "/")
-}
+func ListUsers(c *gin.Context) {
+	var users []models.User
+	pageStr := c.DefaultQuery("page", "1")
+	page, _ := strconv.Atoi(pageStr)
+	if page < 1 {
+		page = 1
+	}
+	limit := 5
+	offset := (page - 1) * limit
 
-func RequestOTP(c *gin.Context) {
-	rateLimit, err := strconv.Atoi(os.Getenv("RATE_LIMIT"))
-	periodTime, err := strconv.Atoi(os.Getenv("PERIOD_TIME"))
-	var body struct {
-		Phone string
+	search := c.Query("search")
+
+	query := initializers.DB.Model(&models.User{})
+	if search != "" {
+		query = query.Where("phone LIKE ?", "%"+search+"%")
 	}
-	if c.Bind(&body) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
-		})
-		return
-	}
-	ok, msg, err := CheckOTPRequest(body.Phone, rateLimit, time.Duration(periodTime)*time.Second)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
-		return
-	}
-	if !ok {
-		c.JSON(http.StatusTooManyRequests, gin.H{"error": msg})
-		return
-	}
-	otp, err := GenerateOTP(body.Phone)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	fmt.Println("otp : ", otp)
+
+	var total int64
+	query.Count(&total)
+
+	query.Limit(limit).Offset(offset).Order("created_at desc").Find(&users)
+
+	totalPages := int((total + int64(limit) - 1) / int64(limit))
+
+	c.HTML(http.StatusOK, "users.html", gin.H{
+		"Users":      users,
+		"Page":       page,
+		"PrevPage":   page - 1,
+		"NextPage":   page + 1,
+		"HasPrev":    page > 1,
+		"HasNext":    page < totalPages,
+		"TotalPages": totalPages,
+		"Search":     search,
+	})
+
 }
