@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"go-otp-auth-service/dto"
 	"go-otp-auth-service/initializers"
 	"go-otp-auth-service/models"
 	"net/http"
@@ -12,36 +13,19 @@ import (
 	"time"
 )
 
-type LoginRequest struct {
-	Phone string `json:"phone" example:"09120000000"`
-	OTP   string `json:"otp" example:"123456"`
-}
-
-type LoginResponse struct {
-	Token string `json:"token"`
-}
-
-type RequestOTPRequest struct {
-	Phone string `json:"phone" example:"09120000000"`
-}
-
-type LogoutResponse struct {
-	Message string `json:"message"`
-}
-
 // Login godoc
 // @Summary Login with phone and OTP
 // @Description Verify OTP and login the user
 // @Tags Auth
 // @Accept  json
 // @Produce  json
-// @Param body body LoginRequest true "Login info"
-// @Success 200 {object} LoginResponse
+// @Param body body dto.LoginRequest true "Login info"
+// @Success 200 {object} dto.LoginResponse
 // @Failure 400 {object} map[string]string
 // @Failure 401 {object} map[string]string
 // @Router /login [post]
 func Login(c *gin.Context) {
-	var body LoginRequest
+	var body dto.LoginRequest
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to read body",
@@ -81,7 +65,7 @@ func Login(c *gin.Context) {
 	}
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("token", tokenString, 3600, "", "", false, true)
-	c.JSON(http.StatusOK, LoginResponse{Token: tokenString})
+	c.JSON(http.StatusOK, dto.LoginResponse{Token: tokenString})
 	//c.Redirect(http.StatusFound, "/dashboard")
 }
 
@@ -90,12 +74,12 @@ func Login(c *gin.Context) {
 // @Description Clear token cookie and logout
 // @Tags Auth
 // @Produce  json
-// @Success 200 {object} LogoutResponse
+// @Success 200 {object} dto.LogoutResponse
 // @Router /logout [get]
 func Logout(c *gin.Context) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("token", "", -1, "", "", false, true)
-	c.JSON(http.StatusOK, LogoutResponse{Message: "Logged out successfully"})
+	c.JSON(http.StatusOK, dto.LogoutResponse{Message: "Logged out successfully"})
 	//c.Redirect(http.StatusFound, "/")
 }
 
@@ -105,7 +89,7 @@ func Logout(c *gin.Context) {
 // @Tags Auth
 // @Accept  json
 // @Produce  json
-// @Param body body RequestOTPRequest true "Phone number"
+// @Param body body dto.RequestOTPRequest true "Phone number"
 // @Success 200 {object} map[string]string
 // @Failure 400 {object} map[string]string
 // @Failure 429 {object} map[string]string
@@ -115,7 +99,7 @@ func RequestOTP(c *gin.Context) {
 	rateLimit, _ := strconv.Atoi(os.Getenv("RATE_LIMIT"))
 	periodTime, _ := strconv.Atoi(os.Getenv("PERIOD_TIME"))
 
-	var body RequestOTPRequest
+	var body dto.RequestOTPRequest
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to read body",

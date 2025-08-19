@@ -1,4 +1,4 @@
-FROM golang:1.21 AS builder
+FROM golang:1.21-alpine AS builder
 
 WORKDIR /app
 
@@ -11,15 +11,19 @@ COPY . .
 
 RUN swag init
 
-RUN go build -o main .
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o main .
 
-FROM debian:bullseye-slim
+FROM alpine:3.18
+
+RUN adduser -D -g '' appuser
 
 WORKDIR /app
 
-COPY --from=builder /app/main .
-COPY --from=builder /app/docs ./docs
-COPY --from=builder /app/templates ./templates
+COPY --from=builder --chown=appuser:appuser /app/main .
+COPY --from=builder --chown=appuser:appuser /app/docs ./docs
+COPY --from=builder --chown=appuser:appuser /app/templates ./templates
+
+USER appuser
 
 EXPOSE 3000
 

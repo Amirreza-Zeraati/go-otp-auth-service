@@ -9,6 +9,7 @@ services:
     depends_on:
       - postgres
       - redis
+    restart: always
     env_file:
       - .env
     volumes:
@@ -33,8 +34,6 @@ services:
     image: redis:7
     container_name: go-otp-redis
     restart: always
-    env_file:
-      - .env
     ports:
       - "6379:6379"
 

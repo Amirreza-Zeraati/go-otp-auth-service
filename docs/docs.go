@@ -29,7 +29,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dashboardController.UserResponse"
+                            "$ref": "#/definitions/dto.UserResponse"
                         }
                     },
                     "401": {
@@ -64,7 +64,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.LoginRequest"
+                            "$ref": "#/definitions/dto.LoginRequest"
                         }
                     }
                 ],
@@ -72,7 +72,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.LoginResponse"
+                            "$ref": "#/definitions/dto.LoginResponse"
                         }
                     },
                     "400": {
@@ -110,7 +110,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.LogoutResponse"
+                            "$ref": "#/definitions/dto.LogoutResponse"
                         }
                     }
                 }
@@ -136,7 +136,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.RequestOTPRequest"
+                            "$ref": "#/definitions/dto.RequestOTPRequest"
                         }
                     }
                 ],
@@ -208,7 +208,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.UsersListResponse"
+                            "$ref": "#/definitions/dto.UsersListResponse"
                         }
                     }
                 }
@@ -236,7 +236,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.UserResponse"
+                            "$ref": "#/definitions/dto.UserResponse"
                         }
                     },
                     "404": {
@@ -253,7 +253,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "controllers.LoginRequest": {
+        "dto.LoginRequest": {
             "type": "object",
             "properties": {
                 "otp": {
@@ -266,7 +266,7 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.LoginResponse": {
+        "dto.LoginResponse": {
             "type": "object",
             "properties": {
                 "token": {
@@ -274,7 +274,7 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.LogoutResponse": {
+        "dto.LogoutResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -282,7 +282,7 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.RequestOTPRequest": {
+        "dto.RequestOTPRequest": {
             "type": "object",
             "properties": {
                 "phone": {
@@ -291,7 +291,7 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.UserResponse": {
+        "dto.UserResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -305,7 +305,7 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.UsersListResponse": {
+        "dto.UsersListResponse": {
             "type": "object",
             "properties": {
                 "has_next": {
@@ -332,22 +332,8 @@ const docTemplate = `{
                 "users": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controllers.UserResponse"
+                        "$ref": "#/definitions/dto.UserResponse"
                     }
-                }
-            }
-        },
-        "dashboardController.UserResponse": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "phone": {
-                    "type": "string"
                 }
             }
         }

@@ -2,29 +2,12 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-otp-auth-service/dto"
 	"go-otp-auth-service/initializers"
 	"go-otp-auth-service/models"
 	"net/http"
 	"strconv"
-	"time"
 )
-
-type UserResponse struct {
-	ID        uint      `json:"id"`
-	Phone     string    `json:"phone"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-type UsersListResponse struct {
-	Users      []UserResponse `json:"users"`
-	Page       int            `json:"page"`
-	PrevPage   int            `json:"prev_page"`
-	NextPage   int            `json:"next_page"`
-	HasPrev    bool           `json:"has_prev"`
-	HasNext    bool           `json:"has_next"`
-	TotalPages int            `json:"total_pages"`
-	Search     string         `json:"search"`
-}
 
 // GetUser godoc
 // GetUser @Summary Get user by ID
@@ -32,7 +15,7 @@ type UsersListResponse struct {
 // @Tags users
 // @Produce json
 // @Param id path int true "User ID"
-// @Success 200 {object} UserResponse
+// @Success 200 {object} dto.UserResponse
 // @Failure 404 {object} map[string]string
 // @Router /users/{id} [get]
 func GetUser(c *gin.Context) {
@@ -42,12 +25,13 @@ func GetUser(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 		return
 	}
-	response := UserResponse{
+	response := dto.UserResponse{
 		ID:        user.ID,
 		Phone:     user.Phone,
 		CreatedAt: user.CreatedAt,
 	}
 	c.JSON(http.StatusOK, response)
+
 	//c.HTML(http.StatusOK, "user.html", gin.H{"User": user})
 }
 
@@ -58,7 +42,7 @@ func GetUser(c *gin.Context) {
 // @Produce json
 // @Param page query int false "Page number"
 // @Param search query string false "Search by phone"
-// @Success 200 {object} UsersListResponse
+// @Success 200 {object} dto.UsersListResponse
 // @Router /users [get]
 func ListUsers(c *gin.Context) {
 	var users []models.User
@@ -78,15 +62,15 @@ func ListUsers(c *gin.Context) {
 	query.Count(&total)
 	query.Limit(limit).Offset(offset).Order("created_at desc").Find(&users)
 	totalPages := int((total + int64(limit) - 1) / int64(limit))
-	var userResponses []UserResponse
+	var userResponses []dto.UserResponse
 	for _, u := range users {
-		userResponses = append(userResponses, UserResponse{
+		userResponses = append(userResponses, dto.UserResponse{
 			ID:        u.ID,
 			Phone:     u.Phone,
 			CreatedAt: u.CreatedAt,
 		})
 	}
-	response := UsersListResponse{
+	response := dto.UsersListResponse{
 		Users:      userResponses,
 		Page:       page,
 		PrevPage:   page - 1,
@@ -96,8 +80,8 @@ func ListUsers(c *gin.Context) {
 		TotalPages: totalPages,
 		Search:     search,
 	}
-
 	c.JSON(http.StatusOK, response)
+
 	//c.HTML(http.StatusOK, "users.html", gin.H{
 	//	"Users":      users,
 	//	"Page":       page,

@@ -1,5 +1,5 @@
 definitions:
-  controllers.LoginRequest:
+  dto.LoginRequest:
     properties:
       otp:
         example: "123456"
@@ -8,23 +8,23 @@ definitions:
         example: "09120000000"
         type: string
     type: object
-  controllers.LoginResponse:
+  dto.LoginResponse:
     properties:
       token:
         type: string
     type: object
-  controllers.LogoutResponse:
+  dto.LogoutResponse:
     properties:
       message:
         type: string
     type: object
-  controllers.RequestOTPRequest:
+  dto.RequestOTPRequest:
     properties:
       phone:
         example: "09120000000"
         type: string
     type: object
-  controllers.UserResponse:
+  dto.UserResponse:
     properties:
       created_at:
         type: string
@@ -33,7 +33,7 @@ definitions:
       phone:
         type: string
     type: object
-  controllers.UsersListResponse:
+  dto.UsersListResponse:
     properties:
       has_next:
         type: boolean
@@ -51,17 +51,8 @@ definitions:
         type: integer
       users:
         items:
-          $ref: '#/definitions/controllers.UserResponse'
+          $ref: '#/definitions/dto.UserResponse'
         type: array
-    type: object
-  dashboardController.UserResponse:
-    properties:
-      created_at:
-        type: string
-      id:
-        type: integer
-      phone:
-        type: string
     type: object
 info:
   contact: {}
@@ -75,7 +66,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dashboardController.UserResponse'
+            $ref: '#/definitions/dto.UserResponse'
         "401":
           description: Unauthorized
           schema:
@@ -96,14 +87,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/controllers.LoginRequest'
+          $ref: '#/definitions/dto.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.LoginResponse'
+            $ref: '#/definitions/dto.LoginResponse'
         "400":
           description: Bad Request
           schema:
@@ -128,7 +119,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.LogoutResponse'
+            $ref: '#/definitions/dto.LogoutResponse'
       summary: Logout user
       tags:
       - Auth
@@ -143,7 +134,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/controllers.RequestOTPRequest'
+          $ref: '#/definitions/dto.RequestOTPRequest'
       produces:
       - application/json
       responses:
@@ -192,7 +183,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.UsersListResponse'
+            $ref: '#/definitions/dto.UsersListResponse'
       summary: List users
       tags:
       - users
@@ -211,7 +202,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.UserResponse'
+            $ref: '#/definitions/dto.UserResponse'
         "404":
           description: Not Found
           schema:

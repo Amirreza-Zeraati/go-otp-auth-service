@@ -4,21 +4,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-otp-auth-service/models"
 	"net/http"
-	"time"
 )
-
-type UserResponse struct {
-	ID        uint      `json:"id"`
-	Phone     string    `json:"phone"`
-	CreatedAt time.Time `json:"created_at"`
-}
 
 // Dashboard godoc
 // @Summary Show user dashboard
 // @Description Returns user info for the dashboard
 // @Tags Dashboard
 // @Produce json
-// @Success 200 {object} UserResponse
+// @Success 200 {object} dto.UserResponse
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Router /dashboard [get]
 func Dashboard(c *gin.Context) {

@@ -18,7 +18,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dashboardController.UserResponse"
+                            "$ref": "#/definitions/dto.UserResponse"
                         }
                     },
                     "401": {
@@ -53,7 +53,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.LoginRequest"
+                            "$ref": "#/definitions/dto.LoginRequest"
                         }
                     }
                 ],
@@ -61,7 +61,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.LoginResponse"
+                            "$ref": "#/definitions/dto.LoginResponse"
                         }
                     },
                     "400": {
@@ -99,7 +99,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.LogoutResponse"
+                            "$ref": "#/definitions/dto.LogoutResponse"
                         }
                     }
                 }
@@ -125,7 +125,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.RequestOTPRequest"
+                            "$ref": "#/definitions/dto.RequestOTPRequest"
                         }
                     }
                 ],
@@ -197,7 +197,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.UsersListResponse"
+                            "$ref": "#/definitions/dto.UsersListResponse"
                         }
                     }
                 }
@@ -225,7 +225,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.UserResponse"
+                            "$ref": "#/definitions/dto.UserResponse"
                         }
                     },
                     "404": {
@@ -242,7 +242,7 @@
         }
     },
     "definitions": {
-        "controllers.LoginRequest": {
+        "dto.LoginRequest": {
             "type": "object",
             "properties": {
                 "otp": {
@@ -255,7 +255,7 @@
                 }
             }
         },
-        "controllers.LoginResponse": {
+        "dto.LoginResponse": {
             "type": "object",
             "properties": {
                 "token": {
@@ -263,7 +263,7 @@
                 }
             }
         },
-        "controllers.LogoutResponse": {
+        "dto.LogoutResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -271,7 +271,7 @@
                 }
             }
         },
-        "controllers.RequestOTPRequest": {
+        "dto.RequestOTPRequest": {
             "type": "object",
             "properties": {
                 "phone": {
@@ -280,7 +280,7 @@
                 }
             }
         },
-        "controllers.UserResponse": {
+        "dto.UserResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -294,7 +294,7 @@
                 }
             }
         },
-        "controllers.UsersListResponse": {
+        "dto.UsersListResponse": {
             "type": "object",
             "properties": {
                 "has_next": {
@@ -321,22 +321,8 @@
                 "users": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controllers.UserResponse"
+                        "$ref": "#/definitions/dto.UserResponse"
                     }
-                }
-            }
-        },
-        "dashboardController.UserResponse": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "phone": {
-                    "type": "string"
                 }
             }
         }
